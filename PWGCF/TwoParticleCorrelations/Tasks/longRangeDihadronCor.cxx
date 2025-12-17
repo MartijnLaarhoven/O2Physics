@@ -665,12 +665,12 @@ struct LongRangeDihadronCor {
           ampl = ft0.amplitudeC()[147];
         else if (id == 139)
           ampl = ft0.amplitudeC()[115];
-      }
-      if ((cfgRejectFT0CInside && (id >= kFT0CInnerRingMin && id <= kFT0CInnerRingMax)) || (cfgRejectFT0COutside && (id >= kFT0COuterRingMin && id <= kFT0COuterRingMax)))
-        ampl = 0.;
-      registry.fill(HIST("FT0Amp"), id, ampl);
-      ampl = ampl / cstFT0RelGain[iCh];
-      registry.fill(HIST("FT0AmpCorrect"), id, ampl);
+    }
+    if ((cfgRejectFT0CInside && (id >= kFT0CInnerRingMin && id <= kFT0CInnerRingMax)) || (cfgRejectFT0COutside && (id >= kFT0COuterRingMin && id <= kFT0COuterRingMax)))
+      ampl = 0.;
+    registry.fill(HIST("FT0Amp"), id, ampl);
+    ampl = ampl / cstFT0RelGain[iCh];
+    registry.fill(HIST("FT0AmpCorrect"), id, ampl);
     } else if (fitType == kFT0A) {
       id = ft0.channelA()[iCh];
       ampl = ft0.amplitudeA()[iCh];
