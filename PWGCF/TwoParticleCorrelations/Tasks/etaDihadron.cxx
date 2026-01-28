@@ -153,7 +153,7 @@ struct EtaDihadron {
 
   // make the filters and cuts.
   Filter collisionFilter = (nabs(aod::collision::posZ) < cfgCutVtxZ);
-  Filter trackFilter = (nabs(aod::track::eta) < cfgCutEta) && (aod::track::pt > cfgCutPtMin) && (aod::track::pt < cfgCutPtMax) && ((requireGlobalTrackInFilter()) || (aod::track::isGlobalTrackSDD == (uint8_t) true)) && (aod::track::tpcChi2NCl < cfgCutChi2prTPCcls) && (nabs(aod::track::dcaZ) < cfgCutDCAz);
+  Filter trackFilter = (nabs(aod::track::eta) < cfgCutEta) && (aod::track::pt > cfgCutPtMin) && (aod::track::pt < cfgCutPtMax) && ((requireGlobalTrackInFilter()) || (aod::track::isGlobalTrackSDD == (uint8_t)true)) && (aod::track::tpcChi2NCl < cfgCutChi2prTPCcls) && (nabs(aod::track::dcaZ) < cfgCutDCAz);
   using FilteredCollisions = soa::Filtered<soa::Join<aod::Collisions, aod::EvSel, aod::CentFT0Cs, aod::CentFT0CVariant1s, aod::CentFT0Ms, aod::CentFV0As, aod::Mults>>;
   using FilteredTracks = soa::Filtered<soa::Join<aod::Tracks, aod::TrackSelection, aod::TracksExtra, aod::TracksDCA>>;
   using FilteredTracksWithMCLabels = soa::Filtered<soa::Join<aod::Tracks, aod::TrackSelection, aod::TracksExtra, aod::TracksDCA, aod::McTrackLabels>>;
@@ -282,10 +282,10 @@ struct EtaDihadron {
       registry.add("Trig_hist", "", {HistType::kTHnSparseF, {{axisSample, axisVertex, axisEtaTrigger}}});
     }
     if (cfgSoloPtTrack && doprocessSame) {
-      registry.add("Nch_final_pt", "pT", {HistType::kTH1D, {axisEtaTrigger}});
-      registry.add("Solo_tracks_trigger", "pT", {HistType::kTH1D, {axisEtaTrigger}});
+      registry.add("Nch_final_eta", "eta", {HistType::kTH1D, {axisEtaTrigger}});
+      registry.add("Solo_tracks_trigger", "eta", {HistType::kTH1D, {axisEtaTrigger}});
       if (!cfgSingleSoloPtTrack) {
-        registry.add("Solo_tracks_assoc", "pT", {HistType::kTH1D, {axisEtaAssoc}});
+        registry.add("Solo_tracks_assoc", "eta", {HistType::kTH1D, {axisEtaAssoc}});
       }
     }
 
@@ -308,7 +308,7 @@ struct EtaDihadron {
       registry.add("MCTrue/MCPhi", "MCPhi", {HistType::kTH1D, {axisPhi}});
       registry.add("MCTrue/MCEta", "MCEta", {HistType::kTH1D, {axisEta}});
       registry.add("MCTrue/MCpT", "MCpT", {HistType::kTH1D, {axisPt}});
-      registry.add("MCTrue/MCTrig_hist", "", {HistType::kTHnSparseF, {{axisSample, axisVertex, axisPt}}});
+      registry.add("MCTrue/MCTrig_hist", "", {HistType::kTHnSparseF, {{axisSample, axisVertex, axisEtaTrigger}}});
       registry.add("MCTrue/MCdeltaEta_deltaPhi_same", "", {HistType::kTH2D, {axisDeltaPhi, axisDeltaEta}}); // check to see the delta eta and delta phi distribution
       registry.add("MCTrue/MCdeltaEta_deltaPhi_mixed", "", {HistType::kTH2D, {axisDeltaPhi, axisDeltaEta}});
     }
@@ -535,7 +535,7 @@ struct EtaDihadron {
       if (!getEfficiencyCorrection(triggerWeight, track1.eta(), track1.pt(), posZ))
         continue;
       if (system == SameEvent) {
-        registry.fill(HIST("Trig_hist"), fSampleIndex, posZ, track1.pt(), eventWeight * triggerWeight);
+        registry.fill(HIST("Trig_hist"), fSampleIndex, posZ, track1.eta(), eventWeight * triggerWeight);
       }
 
       for (auto const& track2 : tracks2) {
@@ -630,13 +630,13 @@ struct EtaDihadron {
       if (!getEfficiencyCorrection(triggerWeight, track1.eta(), track1.pt(), posZ))
         continue;
 
-      registry.fill(HIST("Nch_final_pt"), track1.pt());
+      registry.fill(HIST("Nch_final_eta"), track1.eta());
 
       if (std::find(tracksSkipIndices.begin(), tracksSkipIndices.end(), track1.globalIndex()) != tracksSkipIndices.end()) {
-        registry.fill(HIST("Solo_tracks_trigger"), track1.pt());
+        registry.fill(HIST("Solo_tracks_trigger"), track1.eta());
         continue; // Skip the track1 if it is alone in pt bin
       }
-      registry.fill(HIST("Trig_hist"), fSampleIndex, posZ, track1.pt(), eventWeight * triggerWeight);
+      registry.fill(HIST("Trig_hist"), fSampleIndex, posZ, track1.eta(), eventWeight * triggerWeight);
 
       for (auto const& track2 : tracks2) {
 
@@ -651,7 +651,7 @@ struct EtaDihadron {
           continue;                  // Without pt-differential correlations, skip if the trigger pt is less than the associate pt
         if (!cfgSingleSoloPtTrack) { // avoid skipping the second track if we only want one
           if (std::find(tracks2SkipIndices.begin(), tracks2SkipIndices.end(), track2.globalIndex()) != tracks2SkipIndices.end()) {
-            registry.fill(HIST("Solo_tracks_assoc"), track2.pt());
+            registry.fill(HIST("Solo_tracks_assoc"), track2.eta());
             continue; // Skip the track2 if it is alone in pt bin
           }
         }
@@ -703,7 +703,7 @@ struct EtaDihadron {
         continue;
 
       if (system == SameEvent && (doprocessMCSame || doprocessOntheflySame))
-        registry.fill(HIST("MCTrue/MCTrig_hist"), fSampleIndex, posZ, track1.pt(), eventWeight * triggerWeight);
+        registry.fill(HIST("MCTrue/MCTrig_hist"), fSampleIndex, posZ, track1.eta(), eventWeight * triggerWeight);
 
       for (auto const& track2 : tracks2) {
 
