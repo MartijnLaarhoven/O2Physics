@@ -98,6 +98,7 @@ struct LongRangeDihadronCor {
   O2_DEFINE_CONFIGURABLE(cfgEvSelkIsGoodZvtxFT0vsPV, bool, false, "removes collisions with large differences between z of PV by tracks and z of PV from FT0 A-C time difference, use this cut at low multiplicities with caution")
   O2_DEFINE_CONFIGURABLE(cfgEvSelkNoCollInTimeRangeStandard, bool, false, "no collisions in specified time range")
   O2_DEFINE_CONFIGURABLE(cfgEvSelkIsGoodITSLayersAll, bool, true, "cut time intervals with dead ITS staves")
+  O2_DEFINE_CONFIGURABLE(cfgEvSelkIsGoodITSLayer0123, bool, false, "cut time intervals with dead ITS staves (layers 0-3 only, for pp)")
   O2_DEFINE_CONFIGURABLE(cfgEvSelkNoCollInRofStandard, bool, false, "no other collisions in this Readout Frame with per-collision multiplicity above threshold")
   O2_DEFINE_CONFIGURABLE(cfgEvSelkNoHighMultCollInPrevRof, bool, false, "veto an event if FT0C amplitude in previous ITS ROF is above threshold")
   O2_DEFINE_CONFIGURABLE(cfgEvSelMultCorrelation, bool, true, "Multiplicity correlation cut")
@@ -312,7 +313,7 @@ struct LongRangeDihadronCor {
 
     // Event Counter
     if ((doprocessSameTpcFt0a || doprocessSameTpcFt0c || doprocessSameFt0aFt0c) && cfgUseAdditionalEventCut) {
-      registry.add("hEventCountSpecific", "Number of Event;; Count", {HistType::kTH1D, {{12, 0, 12}}});
+      registry.add("hEventCountSpecific", "Number of Event;; Count", {HistType::kTH1D, {{13, 0, 13}}});
       registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(1, "after sel8");
       registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(2, "kNoSameBunchPileup");
       registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(3, "kNoITSROFrameBorder");
@@ -325,6 +326,7 @@ struct LongRangeDihadronCor {
       registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(10, "occupancy");
       registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(11, "MultCorrelation");
       registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(12, "cfgEvSelV0AT0ACut");
+      registry.get<TH1>(HIST("hEventCountSpecific"))->GetXaxis()->SetBinLabel(13, "kIsGoodITSLayer0123");
     }
 
     if (cfgEvSelMultCorrelation) {
@@ -930,6 +932,12 @@ struct LongRangeDihadronCor {
     }
     if (fillCounter && cfgEvSelkIsGoodITSLayersAll)
       registry.fill(HIST("hEventCountSpecific"), 6.5);
+    if (cfgEvSelkIsGoodITSLayer0123 && !collision.selection_bit(o2::aod::evsel::kIsGoodITSLayer0123)) {
+      // for pp: cut time intervals with dead ITS staves on layers 0-3 only
+      return 0;
+    }
+    if (fillCounter && cfgEvSelkIsGoodITSLayer0123)
+      registry.fill(HIST("hEventCountSpecific"), 12.5);
     if (cfgEvSelkNoCollInRofStandard && !collision.selection_bit(o2::aod::evsel::kNoCollInRofStandard)) {
       // no other collisions in this Readout Frame with per-collision multiplicity above threshold
       return 0;
